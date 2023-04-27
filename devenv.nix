@@ -1,23 +1,19 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
-let APP_NAME = "devenv_template"; in
 {
-  # # https://devenv.sh/basics/
-  env.APP_NAME = APP_NAME;
+  name = "devenv_template";
 
-  # https://devenv.sh/packages/
   packages = [
     pkgs.git
     pkgs.vscode-extensions.phoenixframework.phoenix
   ];
 
-  # https://devenv.sh/scripts/
   scripts.banner.exec = ''
     echo
-    echo " **************************************"
-    echo "   $APP_NAME development environment "
-    echo "   use 'devenv up' to start services "
-    echo " **************************************"
+    echo " *****************************************"
+    echo "   ${config.name} development environment "
+    echo "   use 'devenv up' to start services      "
+    echo " *****************************************"
     echo
   '';
 
@@ -25,31 +21,26 @@ let APP_NAME = "devenv_template"; in
     banner
   '';
 
-  # https://devenv.sh/languages/
   languages.elixir.enable = true;
 
-  # https://devenv.sh/pre-commit-hooks/
   pre-commit.hooks.shellcheck.enable = true;
-
-  # https://devenv.sh/processes/
-  # processes.ping.exec = "ping example.com";
 
   services.postgres.enable = true;
   services.postgres.package = pkgs.postgresql_14.withPackages (p: [ p.postgis ]);
   services.postgres.initialDatabases = [
     {
-      name = APP_NAME+"_dev";
+      name = "${config.name}_dev";
     }
     {
-      name = APP_NAME+"_test";
+      name = "${config.name}_test";
     }
   ];
-  services.postgres.initialScript = "CREATE USER $APP_NAME SUPERUSER";
+  services.postgres.initialScript = "CREATE USER ${config.name} SUPERUSER";
 
   services.minio.enable = true;
   services.minio.region = "local";
-  services.minio.accessKey = APP_NAME+"_access_key";
-  services.minio.secretKey = APP_NAME+"_secret_key";
+  services.minio.accessKey = "${config.name}_access_key";
+  services.minio.secretKey = "${config.name}_secret_key";
 
   services.mailhog.enable = true;
 
